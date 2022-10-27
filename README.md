@@ -30,7 +30,7 @@ Alarms are stored in a JsonDocument with the following structure
 [JsonObject get(String ref)](#Get)
 
 ## Examples
-  Run program inside examples folder to see examples
+  Run programs inside examples folder to check how it works
 ### demo
   Add alarms and then check it forever
 ### demo_callback
@@ -40,9 +40,12 @@ Alarms are stored in a JsonDocument with the following structure
 
 ## Unit Test with clang
   >> chmod u+x make.sh
+
   >> ./make.sh
 
   If needed uncomment DEBUG FLAGS in Makefile
+
+## Public Methods - Extension
 
 ### Add object 1
 return true if has succeed
@@ -65,10 +68,9 @@ bool ALARM::add(JsonObject obj)
     "ref"       : <string>,
     "min_value" : <number>,
     "max_value" : <number>,
-    "diff"      : <number>
+    "diff"      : <number> // 1 to use the difference between current and last value, 0 - otherwise
  }
  ```
-*diff - 1 to use the difference between current and last value, 0 - otherwise
 
 #### Example
 
@@ -109,12 +111,19 @@ bool ALARM::check(String ref, uint8_t type, bool(*callback)(String))
 ```
 #### Example
 ```
+bool (*callback)(String);
+bool calledInAlarm(String ref){
+  Serial.println("alarm was changed");
+  return true;
+}
+
 DynamicJsonDocument table(220);
 String ref = "sensor1"
 table[ref] = rand;
 JsonObject data = table.as<JsonObject>();
 
-Alarm.check(ref,int32be_type,data);
+callback = &calledInAlarm;
+Alarm.check(ref,int32be_type,data,callback);
 ```
 
 ### List
@@ -127,7 +136,7 @@ void ALARM::list()
   Alarm.list();
 ```
 
-### List
+### Get
 
 ```
 JsonObject ALARM::get(String ref)
