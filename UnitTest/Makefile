@@ -4,7 +4,7 @@
 CXXFLAGS += -std=c++11
 
 MACROS = -DDEBUG
-MACROS += -DDEBUGALARM
+#MACROS += -DDEBUGALARM
 
 all: alarm
 
@@ -12,12 +12,12 @@ alarm: init cp_alarm make_alarm run clean
 
 init:
 	mkdir ./tmp
-	cp ./Arduino.hpp ./tmp/
+	cp ./Arduino.h	 ./tmp/
 	cp ./Arduino.cpp ./tmp/
 
 cp_alarm:
-	cp ../alarm.hpp ./tmp/
-	cp ../alarm.cpp ./tmp/
+	cp ../src/alarm.hpp ./tmp/
+	cp ../src/alarm.cpp ./tmp/
 
 make_alarm:
 	@echo "Compiling.."

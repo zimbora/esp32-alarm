@@ -8,6 +8,7 @@
   #include "ArduinoJson.h"
   //#include "../log/logging.h" // handle it
 
+  #define ERROR_ALARM
   //#define DEBUG_ALARM
   //#define HIGH_DEBUG_ALARM
 
@@ -76,10 +77,13 @@
 
 class ALARM{
   public:
+    ALARM(){};
+    #ifndef UNITTEST
     HardwareSerial* serial = &Serial;
     ALARM(HardwareSerial* serial_port){
       serial = serial_port;
     };
+    #endif
     bool add(JsonObject obj);
     bool add(String ref, long min, long max, int diff = 0);
     bool check(String ref, uint8_t type, JsonObject value);

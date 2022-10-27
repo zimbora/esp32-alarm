@@ -11,9 +11,9 @@ StaticJsonDocument<1024> doc_alarm; // json doc to store alarms 100B for each al
 	uint32_t ALARM::check_counter(){
 		return test_check_counter;
 	}
-#endif
 
-uint8_t alarm_counter = 0;
+	#define JsonObject nlohmann::json
+#endif
 
 // return true if alarm is activated
 bool ALARM::check(String ref, uint8_t type, JsonObject table){
@@ -31,7 +31,9 @@ bool ALARM::check(String ref, uint8_t type, JsonObject table){
 		return false;
 	}
 	if(!table.containsKey(ref)){
+		#ifdef HIGH_DEBUG_ALARM
 		serial->println("table doesn't contains key: "+ref);
+		#endif
 		return false;
 	}
 
@@ -498,8 +500,11 @@ bool ALARM::add(JsonObject obj){
 	doc_alarm[ref]["o"] = 0; // last value
 
 	bool res = doc_alarm.containsKey(ref);
-	if(!res)
+	if(!res){
+		#ifdef ERROR_ALARM
 		serial->println("JsonDocument overflow !!");
+		#endif
+	}
 	return res;
 }
 
@@ -519,12 +524,19 @@ bool ALARM::add(String ref, long min, long max, int diff){
 }
 
 void ALARM::list(){
+	#ifndef UNITTEST
 	serializeJson(doc_alarm,*serial);
+	#endif
 }
 
 JsonObject ALARM::get(String ref){
 	JsonObject object;
-	if(doc_alarm.containsKey("ref"))
+	if(doc_alarm.containsKey("ref")){
+		#ifndef UNITTEST
 		object = doc_alarm[ref].as<JsonObject>();
+		#else
+		object = doc_alarm["ref"];
+		#endif
+	}
 	return object;
 }

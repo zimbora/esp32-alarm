@@ -1,5 +1,5 @@
 
-#include "Arduino.hpp"
+#include "Arduino.h"
 
 uint8_t di_state[] = {false,false,false,false};
 std::chrono::steady_clock::time_point begin;

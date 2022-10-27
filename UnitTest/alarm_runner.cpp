@@ -46,17 +46,17 @@ uint8_t type_arr[] = {
   //index_itron
 };
 
-json doc_alarm = {};
+extern json doc_alarm;
 json table = {};
 
-extern ALARM Alarm;
+ALARM Alarm;
 
 // testing null structs
 bool alarm_test1(){
   // Null json
   bool res = true;
   print_colour_text("Test1 - testing null structs!","white");
-  if(Alarm.check("p1",-1)){
+  if(Alarm.check("p1",-1,table)){
     res = false;
   }
 
@@ -74,19 +74,19 @@ bool alarm_test2(){
   };
 
   print_colour_text("Test2 - testing incomplete and null structs!","white");
-  if(Alarm.check("p1",-1)){
+  if(Alarm.check("p1",-1,table)){
     res = false;
   }
 
-  if(Alarm.check("p2",-1)){
+  if(Alarm.check("p2",-1,table)){
     res = false;
   }
 
-  if(Alarm.check("p1",uint8_type)){
+  if(Alarm.check("p1",uint8_type,table)){
     res = false;
   }
 
-  if(Alarm.check("p2",uint8_type)){
+  if(Alarm.check("p2",uint8_type,table)){
     res = false;
   }
 
@@ -115,7 +115,7 @@ bool alarm_test3(){
   while(i<sizeof(type_arr)){
     ref = "p1";
 
-    if(Alarm.check(ref,type_arr[i])){
+    if(Alarm.check(ref,type_arr[i],table)){
       res = false;
       #ifdef DEBUG
       printf("failed >> ref: %s type: %d \n",ref.c_str(),type_arr[i]);
@@ -124,7 +124,7 @@ bool alarm_test3(){
 
     ref = "p2";
 
-    if(Alarm.check(ref,type_arr[i])){
+    if(Alarm.check(ref,type_arr[i],table)){
       res = false;
       #ifdef DEBUG
       printf("ref: %s type: %d \n",ref.c_str(),type_arr[i]);
@@ -165,10 +165,10 @@ bool alarm_test4(){
   while(i<sizeof(type_arr)){
     ref = "p1";
 
-    if(Alarm.check(ref,type_arr[i])){
+    if(Alarm.check(ref,type_arr[i],table)){
       res = false;
       #ifdef DEBUG
-      printf("failed >> ref: %s type: %d \n",ref.c_str(),type_arr[i]);
+      printf("failed >> ref: %s type: %d value:%d \n",ref.c_str(),type_arr[i],(int)table[ref]);
       #endif
     }
 
@@ -178,8 +178,8 @@ bool alarm_test4(){
   doc_alarm = {
     {"p1",
       {
-        {"min",-10},
-        {"max",-20},
+        {"min",-20},
+        {"max",-10},
         {"d",1}, // calculate difference between actual value and last value
         {"o",0} // alarm last value
       }
@@ -193,10 +193,10 @@ bool alarm_test4(){
   while(i<sizeof(type_arr)){
     ref = "p1";
 
-    if(Alarm.check(ref,type_arr[i])){
+    if(Alarm.check(ref,type_arr[i],table)){
       res = false;
       #ifdef DEBUG
-      printf("failed >> ref: %s type: %d \n",ref.c_str(),type_arr[i]);
+      printf("failed >> ref: %s type: %d value:%d \n",ref.c_str(),type_arr[i],(int)table[ref]);
       #endif
     }
 
@@ -236,7 +236,7 @@ bool alarm_test5(){
   while(i<sizeof(type_arr) && type_arr[i] < hex_arr){
 
     doc_alarm["p1"]["t"] = 0;
-    if(!Alarm.check(ref,type_arr[i])){
+    if(!Alarm.check(ref,type_arr[i],table)){
       res = false;
       #ifdef DEBUG
       printf("failed >> ref: %s type: %d \n",ref.c_str(),type_arr[i]);
@@ -257,7 +257,7 @@ bool alarm_test5(){
   while(i<sizeof(type_arr) && type_arr[i] < hex_arr){
 
     doc_alarm["p1"]["t"] = 0;
-    if(!Alarm.check(ref,type_arr[i])){
+    if(!Alarm.check(ref,type_arr[i],table)){
       res = false;
       #ifdef DEBUG
       printf("failed >> ref: %s type: %d \n",ref.c_str(),type_arr[i]);
@@ -289,7 +289,7 @@ bool alarm_test5(){
   i = 0;
   while(i<sizeof(type_arr) && type_arr[i] < hex_arr){
     doc_alarm["p1"]["t"] = 0;
-    if(!Alarm.check(ref,type_arr[i])){
+    if(!Alarm.check(ref,type_arr[i],table)){
       res = false;
       #ifdef DEBUG
       printf("failed >> ref: %s type: %d \n",ref.c_str(),type_arr[i]);
@@ -310,7 +310,7 @@ bool alarm_test5(){
   while(i<sizeof(type_arr) && type_arr[i] < hex_arr){
 
     doc_alarm["p1"]["t"] = 0;
-    if(!Alarm.check(ref,type_arr[i])){
+    if(!Alarm.check(ref,type_arr[i],table)){
       res = false;
       #ifdef DEBUG
       printf("failed >> ref: %s type: %d \n",ref.c_str(),type_arr[i]);
@@ -354,7 +354,7 @@ bool alarm_test6(){
   while(i<sizeof(type_arr) && type_arr[i] < hex_arr){
 
     doc_alarm["p1"]["t"] = 0;
-    if(!Alarm.check(ref,type_arr[i])){
+    if(!Alarm.check(ref,type_arr[i],table)){
       res = false;
       #ifdef DEBUG
       printf("failed >> ref: %s type: %d \n",ref.c_str(),type_arr[i]);
@@ -374,7 +374,7 @@ bool alarm_test6(){
   i = 0;
   while(i<sizeof(type_arr) && type_arr[i] < hex_arr){
     doc_alarm["p1"]["t"] = 0;
-    if(!Alarm.check(ref,type_arr[i])){
+    if(!Alarm.check(ref,type_arr[i],table)){
       res = false;
       #ifdef DEBUG
       printf("failed >> ref: %s type: %d \n",ref.c_str(),type_arr[i]);
@@ -406,7 +406,7 @@ bool alarm_test6(){
   i = 0;
   while(i<sizeof(type_arr) && type_arr[i] < hex_arr){
     doc_alarm["p1"]["t"] = 0;
-    if(!Alarm.check(ref,type_arr[i])){
+    if(!Alarm.check(ref,type_arr[i],table)){
       res = false;
       #ifdef DEBUG
       printf("failed >> ref: %s type: %d \n",ref.c_str(),type_arr[i]);
@@ -426,7 +426,7 @@ bool alarm_test6(){
   i = 0;
   while(i<sizeof(type_arr) && type_arr[i] < hex_arr){
     doc_alarm["p1"]["t"] = 0;
-    if(!Alarm.check(ref,type_arr[i])){
+    if(!Alarm.check(ref,type_arr[i],table)){
       res = false;
       #ifdef DEBUG
       printf("failed >> ref: %s type: %d \n",ref.c_str(),type_arr[i]);
@@ -469,7 +469,7 @@ bool alarm_test7(){
   bool res = true;
   while(i<sizeof(type_arr) && type_arr[i] < hex_arr){
     doc_alarm["p1"]["t"] = 0;
-    if(Alarm.check(ref,type_arr[i])){
+    if(Alarm.check(ref,type_arr[i],table)){
       res = false;
       #ifdef DEBUG
       printf("failed >> ref: %s type: %d \n",ref.c_str(),type_arr[i]);
@@ -502,7 +502,7 @@ bool alarm_test7(){
   i = 0;
   while(i<sizeof(type_arr) && type_arr[i] < hex_arr){
     doc_alarm["p1"]["t"] = 0;
-    if(Alarm.check(ref,type_arr[i])){
+    if(Alarm.check(ref,type_arr[i],table)){
       res = false;
       #ifdef DEBUG
       printf("failed >> ref: %s type: %d \n",ref.c_str(),type_arr[i]);
@@ -546,7 +546,7 @@ bool alarm_test8(){
   bool res = true;
   while(i<sizeof(type_arr) && type_arr[i] < hex_arr){
     doc_alarm["p1"]["t"] = 0;
-    if(Alarm.check(ref,type_arr[i])){
+    if(Alarm.check(ref,type_arr[i],table)){
       res = false;
       #ifdef DEBUG
       printf("failed >> ref: %s type: %d \n",ref.c_str(),type_arr[i]);
@@ -578,7 +578,7 @@ bool alarm_test8(){
   i = 0;
   while(i<sizeof(type_arr) && type_arr[i] < hex_arr){
     doc_alarm["p1"]["t"] = 0;
-    if(Alarm.check(ref,type_arr[i])){
+    if(Alarm.check(ref,type_arr[i],table)){
       res = false;
       #ifdef DEBUG
       printf("failed >> ref: %s type: %d \n",ref.c_str(),type_arr[i]);
@@ -623,7 +623,7 @@ bool alarm_test9(){
   while(i<sizeof(type_arr) && type_arr[i] < hex_arr){
 
     doc_alarm["p1"]["t"] = 0;
-    if(!Alarm.check(ref,type_arr[i])){
+    if(!Alarm.check(ref,type_arr[i],table)){
       res = false;
       #ifdef DEBUG
       printf("failed >> ref: %s type: %d \n",ref.c_str(),type_arr[i]);
@@ -645,7 +645,7 @@ bool alarm_test9(){
   while(i<sizeof(type_arr) && type_arr[i] < hex_arr){
 
     doc_alarm["p1"]["t"] = 0;
-    if(!Alarm.check(ref,type_arr[i])){
+    if(!Alarm.check(ref,type_arr[i],table)){
       res = false;
       #ifdef DEBUG
       printf("failed >> ref: %s type: %d \n",ref.c_str(),type_arr[i]);
@@ -689,7 +689,7 @@ bool alarm_test10(){
   while(i<sizeof(type_arr) && type_arr[i] < hex_arr){
 
     doc_alarm["p1"]["t"] = 0;
-    if(!Alarm.check(ref,type_arr[i])){
+    if(!Alarm.check(ref,type_arr[i],table)){
       res = false;
       #ifdef DEBUG
       printf("ref: %s type: %d \n",ref.c_str(),type_arr[i]);
@@ -712,7 +712,7 @@ bool alarm_test10(){
   while(i<sizeof(type_arr) && type_arr[i] < hex_arr){
 
     doc_alarm["p1"]["t"] = 0;
-    if(!Alarm.check(ref,type_arr[i])){
+    if(!Alarm.check(ref,type_arr[i],table)){
       res = false;
       #ifdef DEBUG
       printf("ref: %s type: %d \n",ref.c_str(),type_arr[i]);
@@ -756,7 +756,7 @@ bool alarm_test11(){
 
   bool (*callback)(String);
   callback = &calledInAlarm;
-  return Alarm.check("p1",type_arr[0],callback);
+  return Alarm.check("p1",type_arr[0],table,callback);
 
 }
 
