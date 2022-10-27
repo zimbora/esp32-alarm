@@ -45,6 +45,9 @@ Alarms are stored in a JsonDocument with the following structure
 
   If needed uncomment DEBUG FLAGS in Makefile
 
+## TODO
+  UnitTest for add methods.. However, it can be tested with examples running on esp32..
+
 ## Public Methods - Extension
 
 ### Add object 1
