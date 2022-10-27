@@ -1,6 +1,6 @@
 
-#ifndef ARDUINO_HPP
-#define ARDUINO_HPP
+#ifndef ARDUINO_H
+#define ARDUINO_H
 
 #include "../libraries/nlohmann/json.hpp"
 #include "../libraries/semaphore.hpp"

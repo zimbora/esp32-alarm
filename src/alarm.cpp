@@ -1,15 +1,11 @@
 
 #include "alarm.hpp"
 
-ALARM Alarm;
-
 #ifndef UNITTEST
 //DynamicJsonDocument doc_alarm(512);
-extern StaticJsonDocument<512> doc_alarm;
-extern DynamicJsonDocument table;
+StaticJsonDocument<1024> doc_alarm; // json doc to store alarms 100B for each alarm, approximately
 #else
-	extern nlohmann::json doc_alarm;
-	extern nlohmann::json table;
+	nlohmann::json doc_alarm;
 
 	uint32_t test_check_counter = 0;
 	uint32_t ALARM::check_counter(){
@@ -20,7 +16,7 @@ extern DynamicJsonDocument table;
 uint8_t alarm_counter = 0;
 
 // return true if alarm is activated
-bool ALARM::check(String ref, uint8_t type){
+bool ALARM::check(String ref, uint8_t type, JsonObject table){
 
 	#ifdef UNITTEST
 	test_check_counter++;
@@ -28,23 +24,45 @@ bool ALARM::check(String ref, uint8_t type){
 
 	bool check_action = false;
 
-	if(!doc_alarm.containsKey(ref))
+	if(!doc_alarm.containsKey(ref)){
+		#ifdef HIGH_DEBUG_ALARM
+		serial->println("doc_alarm doesn't contains key: "+ref);
+		#endif
 		return false;
-	if(!table.containsKey(ref))
+	}
+	if(!table.containsKey(ref)){
+		serial->println("table doesn't contains key: "+ref);
 		return false;
+	}
 
 	#ifdef DEBUG_ALARM
-	log("alarm found");
+	serial->println("alarm found");
 	#endif
 
-	if(!doc_alarm[ref].containsKey("min"))
+	if(!doc_alarm[ref].containsKey("min")){
+		#ifdef HIGH_DEBUG_ALARM
+		serial->println("doc_alarm doesn't contains key min");
+		#endif
 		return false;
-	if(!doc_alarm[ref].containsKey("max"))
+	}
+	if(!doc_alarm[ref].containsKey("max")){
+		#ifdef HIGH_DEBUG_ALARM
+		serial->println("doc_alarm doesn't contains key min");
+		#endif
 		return false;
-	if(!doc_alarm[ref].containsKey("d"))
+	}
+	if(!doc_alarm[ref].containsKey("d")){
+		#ifdef HIGH_DEBUG_ALARM
+		serial->println("doc_alarm doesn't contains key min");
+		#endif
 		return false;
-	if(!doc_alarm[ref].containsKey("o"))
+	}
+	if(!doc_alarm[ref].containsKey("o")){
+		#ifdef HIGH_DEBUG_ALARM
+		serial->println("doc_alarm doesn't contains key o");
+		#endif
 		return false;
+	}
 
 	if(type == int16be_type){
     uint16_t ref_min = doc_alarm[ref]["min"];
@@ -52,24 +70,24 @@ bool ALARM::check(String ref, uint8_t type){
     uint16_t value = table[ref];
 
 		#ifdef HIGH_DEBUG_ALARM
-    Serial.printf("value: %d \n",value);
+    serial->printf("value: %d \n",value);
 		#endif
 
     if(doc_alarm[ref]["d"] == 1){
 			#ifdef HIGH_DEBUG_ALARM
-			Serial.printf("diff: %d \n",doc_alarm[ref]["d"]);
+			serial->printf("diff: %d \n",doc_alarm[ref]["d"]);
 			#endif
       int16_t last_value = doc_alarm[ref]["o"];
       value -= last_value;
     }
 
     if(ref_min > value || ref_max < value){
+			check_action = true;
       if(doc_alarm[ref]["t"] == 0){
         	doc_alarm[ref]["t"] = 1;
-					check_action = true;
       }else{
 				#ifdef DEBUG_ALARM
-				 log("alarm already sent");
+				 serial->println("alarm already sent");
 				#endif
 			 }
     }else if(ref_min < value & ref_max > value){
@@ -77,7 +95,7 @@ bool ALARM::check(String ref, uint8_t type){
       	doc_alarm[ref]["t"] = 0;
       }else{
 				#ifdef DEBUG_ALARM
-				 log("value is ok");
+				 serial->println("value is ok");
 				 #endif
 			 }
     }
@@ -87,24 +105,24 @@ bool ALARM::check(String ref, uint8_t type){
     uint16_t value = table[ref];
 
 		#ifdef HIGH_DEBUG_ALARM
-    Serial.printf("value: %d \n",value);
+    serial->printf("value: %d \n",value);
 		#endif
 
     if(doc_alarm[ref]["d"] == 1){
 			#ifdef HIGH_DEBUG_ALARM
-			Serial.printf("diff: %d \n",doc_alarm[ref]["d"]);
+			serial->printf("diff: %d \n",doc_alarm[ref]["d"]);
 			#endif
       uint16_t last_value = doc_alarm[ref]["o"];
       value -= last_value;
     }
 
     if(ref_min > value || ref_max < value){
+			check_action = true;
       if(doc_alarm[ref]["t"] == 0){
         	doc_alarm[ref]["t"] = 1;
-					check_action = true;
       }else{
 				#ifdef DEBUG_ALARM
-				 log("alarm already sent");
+				 serial->println("alarm already sent");
 				#endif
 			 }
     }else if(ref_min < value & ref_max > value){
@@ -112,7 +130,7 @@ bool ALARM::check(String ref, uint8_t type){
       	doc_alarm[ref]["t"] = 0;
       }else{
 				#ifdef DEBUG_ALARM
-				 log("value is ok");
+				 serial->println("value is ok");
 				 #endif
 			 }
     }
@@ -122,24 +140,24 @@ bool ALARM::check(String ref, uint8_t type){
     int32_t value = table[ref];
 
 		#ifdef HIGH_DEBUG_ALARM
-    Serial.printf("value: %d \n",value);
+    serial->printf("value: %d \n",value);
 		#endif
 
     if(doc_alarm[ref]["d"] == 1){
 			#ifdef HIGH_DEBUG_ALARM
-			Serial.printf("diff: %d \n",doc_alarm[ref]["d"]);
+			serial->printf("diff: %d \n",doc_alarm[ref]["d"]);
 			#endif
       int32_t last_value = doc_alarm[ref]["o"];
       value -= last_value;
     }
 
     if(ref_min > value || ref_max < value){
+			check_action = true;
       if(doc_alarm[ref]["t"] == 0){
         	doc_alarm[ref]["t"] = 1;
-					check_action = true;
       }else{
 				#ifdef DEBUG_ALARM
-				 log("alarm already sent");
+				 serial->println("alarm already sent");
 				#endif
 			 }
     }else if(ref_min < value & ref_max > value){
@@ -147,7 +165,7 @@ bool ALARM::check(String ref, uint8_t type){
       	doc_alarm[ref]["t"] = 0;
       }else{
 				#ifdef DEBUG_ALARM
-				 log("value is ok");
+				 serial->println("value is ok");
 				 #endif
 			 }
     }
@@ -157,24 +175,24 @@ bool ALARM::check(String ref, uint8_t type){
     uint32_t value = table[ref];
 
 		#ifdef HIGH_DEBUG_ALARM
-    Serial.printf("value: %d \n",value);
+    serial->printf("value: %d \n",value);
 		#endif
 
     if(doc_alarm[ref]["d"] == 1){
 			#ifdef HIGH_DEBUG_ALARM
-			Serial.printf("diff: %d \n",doc_alarm[ref]["d"]);
+			serial->printf("diff: %d \n",doc_alarm[ref]["d"]);
 			#endif
       uint32_t last_value = doc_alarm[ref]["o"];
       value -= last_value;
     }
 
     if(ref_min > value || ref_max < value){
+			check_action = true;
       if(doc_alarm[ref]["t"] == 0){
         	doc_alarm[ref]["t"] = 1;
-					check_action = true;
       }else{
 				#ifdef DEBUG_ALARM
-				 log("alarm already sent");
+				 serial->println("alarm already sent");
 				#endif
 			 }
     }else if(ref_min < value & ref_max > value){
@@ -182,7 +200,7 @@ bool ALARM::check(String ref, uint8_t type){
       	doc_alarm[ref]["t"] = 0;
       }else{
 				#ifdef DEBUG_ALARM
-				 log("value is ok");
+				 serial->println("value is ok");
 				 #endif
 			 }
     }
@@ -192,24 +210,24 @@ bool ALARM::check(String ref, uint8_t type){
     float value = table[ref];
 
 		#ifdef HIGH_DEBUG_ALARM
-    Serial.printf("value: %d \n",value);
+    serial->printf("value: %d \n",value);
 		#endif
 
     if(doc_alarm[ref]["d"] == 1){
 			#ifdef HIGH_DEBUG_ALARM
-			Serial.printf("diff: %d \n",doc_alarm[ref]["d"]);
+			serial->printf("diff: %d \n",doc_alarm[ref]["d"]);
 			#endif
       float last_value = doc_alarm[ref]["o"];
       value -= last_value;
     }
 
     if(ref_min > value || ref_max < value){
+			check_action = true;
       if(doc_alarm[ref]["t"] == 0){
         	doc_alarm[ref]["t"] = 1;
-					check_action = true;
       }else{
 				#ifdef DEBUG_ALARM
-				 log("alarm already sent");
+				 serial->println("alarm already sent");
 				#endif
 			 }
     }else if(ref_min < value & ref_max > value){
@@ -217,7 +235,7 @@ bool ALARM::check(String ref, uint8_t type){
       	doc_alarm[ref]["t"] = 0;
       }else{
 				#ifdef DEBUG_ALARM
-				 log("value is ok");
+				 serial->println("value is ok");
 				 #endif
 			 }
     }
@@ -232,7 +250,7 @@ bool ALARM::check(String ref, uint8_t type){
 	return check_action;
 }
 
-bool ALARM::check(String ref, uint8_t type,bool(*report)(String)){
+bool ALARM::check(String ref, uint8_t type, JsonObject table, bool(*report)(String)){
 
 	#ifdef UNITTEST
 	test_check_counter++;
@@ -240,13 +258,21 @@ bool ALARM::check(String ref, uint8_t type,bool(*report)(String)){
 
 	bool check_action = false;
 
-	if(!doc_alarm.containsKey(ref))
+	if(!doc_alarm.containsKey(ref)){
+		#ifdef DEBUG_ALARM
+		 serial->println(ref +"doesn't exists");
+		#endif
 		return false;
-	if(!table.containsKey(ref))
+	}
+	if(!table.containsKey(ref)){
+		#ifdef DEBUG_ALARM
+		 serial->println("value not found for: "+ref);
+		#endif
 		return false;
+	}
 
 	#ifdef DEBUG_ALARM
-	log("alarm found");
+	serial->println("alarm found");
 	#endif
 
 	if(!doc_alarm[ref].containsKey("min"))
@@ -264,29 +290,37 @@ bool ALARM::check(String ref, uint8_t type,bool(*report)(String)){
     uint16_t value = table[ref];
 
 		#ifdef HIGH_DEBUG_ALARM
-    Serial.printf("value: %d \n",value);
+    serial->printf("value: %d \n",value);
 		#endif
 
     if(doc_alarm[ref]["d"] == 1){
 			#ifdef HIGH_DEBUG_ALARM
-			Serial.printf("diff: %d \n",doc_alarm[ref]["d"]);
+			serial->printf("diff: %d \n",doc_alarm[ref]["d"]);
 			#endif
       int16_t last_value = doc_alarm[ref]["o"];
       value -= last_value;
     }
 
     if(ref_min > value || ref_max < value){
+			check_action = true;
       if(doc_alarm[ref]["t"] == 0){
 				if(report(ref)){
         	doc_alarm[ref]["t"] = 1;
-					check_action = true;
 				}
-      }else log("alarm already sent");
+      }else{
+				#ifdef DEBUG_ALARM
+				serial->println("alarm already sent");
+				#endif
+			}
     }else if(ref_min < value & ref_max > value){
       if(doc_alarm[ref]["t"] == 1){
 				if(report(ref))
         	doc_alarm[ref]["t"] = 0;
-      }else log("value is ok");
+      }else{
+				#ifdef DEBUG_ALARM
+				serial->println("value is ok");
+				#endif
+			}
     }
   }else if(type == uint16be_type){
 		uint16_t ref_min = doc_alarm[ref]["min"];
@@ -294,29 +328,37 @@ bool ALARM::check(String ref, uint8_t type,bool(*report)(String)){
     uint16_t value = table[ref];
 
 		#ifdef HIGH_DEBUG_ALARM
-    Serial.printf("value: %d \n",value);
+    serial->printf("value: %d \n",value);
 		#endif
 
     if(doc_alarm[ref]["d"] == 1){
 			#ifdef HIGH_DEBUG_ALARM
-			Serial.printf("diff: %d \n",doc_alarm[ref]["d"]);
+			serial->printf("diff: %d \n",doc_alarm[ref]["d"]);
 			#endif
       uint16_t last_value = doc_alarm[ref]["o"];
       value -= last_value;
     }
 
     if(ref_min > value || ref_max < value){
+			check_action = true;
       if(doc_alarm[ref]["t"] == 0){
 				if(report(ref)){
         	doc_alarm[ref]["t"] = 1;
-					check_action = true;
 				}
-      }else log("alarm already sent");
+      }else{
+				#ifdef DEBUG_ALARM
+				 serial->println("alarm already sent");
+				#endif
+			 }
     }else if(ref_min < value & ref_max > value){
       if(doc_alarm[ref]["t"] == 1){
 				if(report(ref))
         	doc_alarm[ref]["t"] = 0;
-      }else log("value is ok");
+      }else{
+				#ifdef DEBUG_ALARM
+				 serial->println("value is ok");
+				#endif
+			 }
     }
   }else if(type == int32be_type){
 		int32_t ref_min = doc_alarm[ref]["min"];
@@ -324,29 +366,37 @@ bool ALARM::check(String ref, uint8_t type,bool(*report)(String)){
     int32_t value = table[ref];
 
 		#ifdef HIGH_DEBUG_ALARM
-    Serial.printf("value: %d \n",value);
+    serial->printf("value: %d \n",value);
 		#endif
 
     if(doc_alarm[ref]["d"] == 1){
 			#ifdef HIGH_DEBUG_ALARM
-			Serial.printf("diff: %d \n",doc_alarm[ref]["d"]);
+			serial->printf("diff: %d \n",doc_alarm[ref]["d"]);
 			#endif
       int32_t last_value = doc_alarm[ref]["o"];
       value -= last_value;
     }
 
     if(ref_min > value || ref_max < value){
+			check_action = true;
       if(doc_alarm[ref]["t"] == 0){
 				if(report(ref)){
         	doc_alarm[ref]["t"] = 1;
-					check_action = true;
 				}
-      }else log("alarm already sent");
+      }else{
+				#ifdef DEBUG_ALARM
+				 serial->println("alarm already sent");
+				#endif
+			 }
     }else if(ref_min < value & ref_max > value){
       if(doc_alarm[ref]["t"] == 1){
 				if(report(ref))
         	doc_alarm[ref]["t"] = 0;
-      }else log("value is ok");
+      }else{
+				#ifdef DEBUG_ALARM
+				 serial->println("value is ok");
+				#endif
+			 }
     }
   }else if(type == uint32be_type){
 		uint32_t ref_min = doc_alarm[ref]["min"];
@@ -354,29 +404,37 @@ bool ALARM::check(String ref, uint8_t type,bool(*report)(String)){
     uint32_t value = table[ref];
 
 		#ifdef HIGH_DEBUG_ALARM
-    Serial.printf("value: %d \n",value);
+    serial->printf("value: %d \n",value);
 		#endif
 
     if(doc_alarm[ref]["d"] == 1){
 			#ifdef HIGH_DEBUG_ALARM
-			Serial.printf("diff: %d \n",doc_alarm[ref]["d"]);
+			serial->printf("diff: %d \n",doc_alarm[ref]["d"]);
 			#endif
       uint32_t last_value = doc_alarm[ref]["o"];
       value -= last_value;
     }
 
     if(ref_min > value || ref_max < value){
+			check_action = true;
       if(doc_alarm[ref]["t"] == 0){
 				if(report(ref)){
         	doc_alarm[ref]["t"] = 1;
-					check_action = true;
 				}
-      }else log("alarm already sent");
+      }else{
+				#ifdef DEBUG_ALARM
+				 serial->println("alarm already sent");
+				#endif
+			 }
     }else if(ref_min < value & ref_max > value){
       if(doc_alarm[ref]["t"] == 1){
 				if(report(ref))
         	doc_alarm[ref]["t"] = 0;
-      }else log("value is ok");
+      }else{
+				#ifdef DEBUG_ALARM
+				 serial->println("value is ok");
+				#endif
+			 }
     }
   }else if(type == floatbe_type){
 		float ref_min = doc_alarm[ref]["min"];
@@ -384,29 +442,37 @@ bool ALARM::check(String ref, uint8_t type,bool(*report)(String)){
     float value = table[ref];
 
 		#ifdef HIGH_DEBUG_ALARM
-    Serial.printf("value: %d \n",value);
+    serial->printf("value: %d \n",value);
 		#endif
 
     if(doc_alarm[ref]["d"] == 1){
 			#ifdef HIGH_DEBUG_ALARM
-			Serial.printf("diff: %d \n",doc_alarm[ref]["d"]);
+			serial->printf("diff: %d \n",doc_alarm[ref]["d"]);
 			#endif
       float last_value = doc_alarm[ref]["o"];
       value -= last_value;
     }
 
     if(ref_min > value || ref_max < value){
+			check_action = true;
       if(doc_alarm[ref]["t"] == 0){
 				if(report(ref)){
         	doc_alarm[ref]["t"] = 1;
-					check_action = true;
 				}
-      }else log("alarm already sent");
+      }else{
+				#ifdef DEBUG_ALARM
+				 serial->println("alarm already sent");
+				#endif
+			 }
     }else if(ref_min < value & ref_max > value){
       if(doc_alarm[ref]["t"] == 1){
 				if(report(ref))
         	doc_alarm[ref]["t"] = 0;
-      }else log("value is ok");
+      }else{
+				#ifdef DEBUG_ALARM
+				 serial->println("value is ok");
+				#endif
+			 }
     }
   }
 
@@ -415,6 +481,8 @@ bool ALARM::check(String ref, uint8_t type,bool(*report)(String)){
 
 bool ALARM::add(JsonObject obj){
 
+	if(!obj.containsKey("ref"))
+		return false;
 	String ref = obj["ref"];
 	if(obj.containsKey("min_value"))
 		doc_alarm[ref]["min"] = obj["min_value"];
@@ -429,28 +497,34 @@ bool ALARM::add(JsonObject obj){
 	doc_alarm[ref]["t"] = 0; // triggered
 	doc_alarm[ref]["o"] = 0; // last value
 
-	//log("alarm ref: "+ref);
+	bool res = doc_alarm.containsKey(ref);
+	if(!res)
+		serial->println("JsonDocument overflow !!");
+	return res;
+}
+
+bool ALARM::add(String ref, long min, long max, int diff){
+
+	if(ref == "")
+		return false;
+
+	doc_alarm[ref]["min"] = min;
+	doc_alarm[ref]["max"] = max;
+	doc_alarm[ref]["d"] = diff;
+
+	doc_alarm[ref]["t"] = 0; // triggered
+	doc_alarm[ref]["o"] = 0; // last value
 
 	return true;
 }
-/*
-bool ALARM::report(String ref){
 
-	#ifdef DEBUG_ALARM
-	log("report alarm");
-	#endif
-
-	if(!table.containsKey(ref))
-		return false;
-
-	#ifndef UNITTEST
-		String value = table[ref];
-		return mqtt_pushMessage("/"+ref,value,0,0);
-	#else
-		#ifdef DEBUG_ALARM
-		std::cout << ref << ": " << table[ref] << "\n";
-		#endif
-		return true;
-	#endif
+void ALARM::list(){
+	serializeJson(doc_alarm,*serial);
 }
-*/
+
+JsonObject ALARM::get(String ref){
+	JsonObject object;
+	if(doc_alarm.containsKey("ref"))
+		object = doc_alarm[ref].as<JsonObject>();
+	return object;
+}
