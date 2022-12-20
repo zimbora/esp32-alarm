@@ -2,7 +2,7 @@
 #include "alarm.hpp"
 
 #ifndef UNITTEST
-//DynamicJsonDocument doc_alarm(512);
+//DynamicJsonDocument doc_alarm(1024);
 StaticJsonDocument<1024> doc_alarm; // json doc to store alarms 100B for each alarm, approximately
 #else
 	nlohmann::json doc_alarm;
@@ -519,11 +519,11 @@ bool ALARM::add(JsonObject obj){
 
 	if(obj.containsKey("min_value"))
 		doc_alarm[ref]["min"] = obj["min_value"];
-	else return false;
+	else doc_alarm[ref]["min"] = 0;
 
 	if(obj.containsKey("max_value"))
 		doc_alarm[ref]["max"] = obj["max_value"];
-	else return false;
+	else doc_alarm[ref]["max"] = 0;
 
 	if(obj.containsKey("diff"))
 		doc_alarm[ref]["d"] = obj["diff"];
