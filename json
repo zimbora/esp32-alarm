@@ -1,0 +1,1719 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "TAPE Documentation",
+        "version": "8.5.10"
+    },
+    "servers": [
+        {
+            "url": "http://v4.trackingdiary.com/api"
+        }
+    ],
+    "paths": {
+        "/auth": {
+            "post": {
+                "summary": "Not using SDK",
+                "description": "If you don't want to use the provided SDK, you can refer to the HTTP verbs and methods\nexposed on this documentation. The one part required for you to start is the authentication. To do that you need\nto make a **POST** request to `/api/auth` using an authentication key.\n\n```sh\ncurl -X POST --data key=my-account-key http://v4.trackingdiary.com/api/auth\n```\n\nAfter a successfull authentication, a session key is returned and should be used in subsequent requests. You must\npass the key on `X-Session` header, on body of `POST` requests or as a query parameter.\n\n```sh\ncurl -H X-Session=my-session-key http://v4.trackingdiary.com/api/entities\n```",
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "key": {
+                                        "type": "string",
+                                        "description": "Authentication key"
+                                    }
+                                },
+                                "required": [
+                                    "key"
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/destroy": {
+            "post": {
+                "summary": "Destroying Session",
+                "description": "Session is automatically destroyed if not used for 15 minutes. We recomend\nto destroy it after making every action you intended.\n\n```sh\ncurl -X POST -H X-Session=my-session-key http://v4.trackingdiary.com/api/auth/destroy\n```",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Session",
+                        "description": "Session key",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/entities": {
+            "get": {
+                "summary": "List Entities",
+                "description": "Another common information you can obtain is the list of entities. It will give you only the names.\n\n```js\napi.get(\"/entities\", (err, entities) => {\n\tif (err) throw err;\n\n\tconsole.log(entities);\n});\n```",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "type": "string",
+                        "required": false,
+                        "description": "Limit the number of entities to return"
+                    }
+                ]
+            }
+        },
+        "/entities/:id": {
+            "get": {
+                "summary": "Get Entity Information",
+                "description": "Get detailed entity information, including contact details and position information.\n\n```js\napi.get(\"/entities/345\", (err, entity) => {\n\tif (err) throw err;\n\n\tconsole.log(entity);\n});\n```",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/entities/add": {
+            "put": {
+                "summary": "Create Entity",
+                "description": "It is possible to add a new entity.\n\n```js\napi.put(\"/entities/add\", {\n\tname         : \"John Doe\",\n\tlegal_vat    : \"502391748\"\n\tposition     : [-8.42947998, 39.9877],\n\tphone        : \"968845642\",\n\temail        : \"support@thinkdigital.pt\",\n\texternal_ref : \"2000\",\n\tunit_label   : \"Location 1\",\n\tunit_ref     : \"001\"\n}, (err) => {\n\tif (err) throw err;\n\n\tconsole.log(\"success!\");\n});\n```",
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "description": "Entity display name"
+                                    },
+                                    "legal_vat": {
+                                        "type": "string",
+                                        "description": "Entity value add tax number"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "description": "Entity phone number"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "description": "Entity email"
+                                    },
+                                    "position": {
+                                        "type": "string",
+                                        "description": "Entity position (**[ lon, lat ]** or **{ lon: lon, lat: lat }**). This will only be used <u>when entity/location reference separator is empty</u>."
+                                    },
+                                    "external_ref": {
+                                        "type": "string",
+                                        "description": "Entity reference"
+                                    },
+                                    "unit_ref": {
+                                        "type": "string",
+                                        "description": "Entity gps reference"
+                                    },
+                                    "unit_label": {
+                                        "type": "string",
+                                        "description": "Entity gps label"
+                                    }
+                                },
+                                "required": [
+                                    "name"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Session",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/entities/positions/add": {
+            "put": {
+                "summary": "Add Entity Position",
+                "description": "It is also possible to add a new entity position.\n\n```js\napi.put(\"/entities/positions/add\", {\n\tid  : 345,\n\tlat : 40,\n\tlon : -8,\n}, (err) => {\n\tif (err) throw err;\n\n\tconsole.log(\"success!\");\n});\n```",
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string",
+                                        "description": "Entity identification number"
+                                    },
+                                    "lat": {
+                                        "type": "string",
+                                        "description": "Entity position latitude in decimal form"
+                                    },
+                                    "lon": {
+                                        "type": "string",
+                                        "description": "Entity position longitude in decimal form"
+                                    }
+                                },
+                                "required": [
+                                    "id",
+                                    "lat",
+                                    "lon"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Session",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/entities/positions/update": {
+            "post": {
+                "summary": "Update Entity Position",
+                "description": "To update a position, you need to give the position ID instead.\n\n```js\napi.post(\"/entities/positions/update\", {\n\tid  : 2349238,\n\tlat : 40,\n\tlon : -8,\n}, (err) => {\n\tif (err) throw err;\n\n\tconsole.log(\"success!\");\n});\n```\n",
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string",
+                                        "description": "Entity GPS identification number"
+                                    },
+                                    "lat": {
+                                        "type": "string",
+                                        "description": "Entity position latitude in decimal form"
+                                    },
+                                    "lon": {
+                                        "type": "string",
+                                        "description": "Entity position longitude in decimal form"
+                                    }
+                                },
+                                "required": [
+                                    "id",
+                                    "lat",
+                                    "lon"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Session",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/entities/positions": {
+            "get": {
+                "summary": "Get Latest Entity Positions",
+                "description": "To get the latest entity positions. If no since date set, the last 10 positions will be returned.\n\n```js\napi.get(\"/entities/positions\", {\n\tsince : \"2021-02-15T08:40:30Z\",\n}, (err, positions) => {\n\tif (err) throw err;\n\n\tconsole.log(\"positions since feb 15\", positions);\n});\n```\n",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    },
+                    {
+                        "name": "since",
+                        "in": "query",
+                        "type": "string",
+                        "required": false,
+                        "description": "Date after which to receive new entity positions"
+                    }
+                ]
+            }
+        },
+        "/equipment": {
+            "get": {
+                "summary": "List Equipment",
+                "description": "Get the list of equipment, its type and location.\n\n```js\napi.get(\"/equipment\", { childs : true }, (err, equipment) => {\n\tif (err) throw err;\n\n\tconsole.log(equipment);\n});\n```",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/equipment/alarms": {
+            "get": {
+                "summary": "Get Alarms List",
+                "description": "Get list of open alarms.\n\n```js\napi.get(\"/equipment/alarms\", (err, alarms) => {\n\tif (err) throw err;\n\n\tconsole.log(alarms);\n});\n```",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/equipment/alarms/history": {
+            "get": {
+                "summary": "Get Alarms History",
+                "description": "Get history of the last 100 closed alarms.\n\n```js\napi.get(\"/equipment/alarms/history\", (err, alarms) => {\n\tif (err) throw err;\n\n\tconsole.log(alarms);\n});\n```",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/equipment/errors": {
+            "get": {
+                "summary": "Get Errors List",
+                "description": "Get list of open errors.\n\n```js\napi.get(\"/equipment/errors\", (err, errors) => {\n\tif (err) throw err;\n\n\tconsole.log(errors);\n});\n```",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/equipment/errors/history": {
+            "get": {
+                "summary": "Get Errors History List",
+                "description": "Get list of closed errors.\n\n```js\napi.get(\"/equipment/errors/history\", (err, errors) => {\n\tif (err) throw err;\n\n\tconsole.log(errors);\n});\n```",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/equipment/:uid/:unit": {
+            "get": {
+                "summary": "Get Equipment",
+                "description": "Get a specific equipment, its type and location.\n\n```js\napi.get(\"/equipment/imei:1234567890/0\", { sensors: true }, (err, equipment) => {\n\tif (err) throw err;\n\n\tconsole.log(equipment);\n});\n```",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    },
+                    {
+                        "name": "descendants",
+                        "in": "query",
+                        "type": "string",
+                        "required": false,
+                        "description": "Whether you want to get the list of descendant equipment or not."
+                    },
+                    {
+                        "name": "sensors",
+                        "in": "query",
+                        "type": "string",
+                        "required": false,
+                        "description": "Whether you want to get the list of sensors or not."
+                    },
+                    {
+                        "name": "actuators",
+                        "in": "query",
+                        "type": "string",
+                        "required": false,
+                        "description": "Whether you want to get the list of actuators or not."
+                    },
+                    {
+                        "name": "history",
+                        "in": "query",
+                        "type": "string",
+                        "required": false,
+                        "description": "Whether you want to get sensor history or not (used together with sensors parameter)."
+                    }
+                ]
+            },
+            "delete": {
+                "summary": "Remove Equipment",
+                "description": "Remove equipment.\n\n```js\napi.delete(\"/equipment/imei:1234567890/0\", (err) => {\n\tif (err) throw err;\n\n\tconsole.log(\"Equipment deleted\");\n});\n```",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Session",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/equipment/:uid/:unit/alarms": {
+            "get": {
+                "summary": "Get a Specific Equipment Alarms List",
+                "description": "Get alarms list of a specific equipment.\n\n```js\napi.get(\"/equipment/imei:1234567890/0/alarms\", (err, alarms) => {\n\tif (err) throw err;\n\n\tconsole.log(alarms);\n});\n```",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/equipment/:uid/:unit/alarms/history": {
+            "get": {
+                "summary": "Get a Specific Equipment Alarms History",
+                "description": "Get alarms history of a specific equipment.\n\n```js\napi.get(\"/equipment/imei:1234567890/0/alarms/history\", (err, alarms) => {\n\tif (err) throw err;\n\n\tconsole.log(alarms);\n});\n```",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/equipment/:uid/:unit/errors": {
+            "get": {
+                "summary": "Get Equipment Errors List",
+                "description": "Get list of open errors of a specific equipment.\n\n```js\napi.get(\"/equipment/imei:1234567890/0/errors\", (err, errors) => {\n\tif (err) throw err;\n\n\tconsole.log(errors);\n});\n```",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/equipment/:uid/:unit/errors/history": {
+            "get": {
+                "summary": "Get Equipment Errors History List",
+                "description": "Get list of closed errors of a specific equipment.\n\n```js\napi.get(\"/equipment/imei:1234567890/0/errors/history\", (err, errors) => {\n\tif (err) throw err;\n\n\tconsole.log(errors);\n});\n```",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/equipment/:uid/:unit/photo": {
+            "get": {
+                "summary": "Get Equipment Photo",
+                "description": "Get the equipment photo or the type photo.\n\nYou should ensure the equipment has a `photo` parameter and is `true`, otherwise this will return a 404 error.\n\n```html\n<img src=\"/api/equipment/imei:123456789/0/photo?key=your_session_key\" />\n```\n\nYou can get your session key using `api.session()`.",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/equipment/:uid/:unit/install": {
+            "post": {
+                "summary": "Update Equipment Installation",
+                "description": "Change equipment installation status.\n\n```js\napi.post(\"/equipment/imei:1234567890/0/install\", { status: \"started\" }, (err) => {\n\tif (err) throw err;\n\n\tconsole.log(\"installation started\");\n});\n```",
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "description": "New status for installation (`pending`, started or ended)"
+                                    }
+                                },
+                                "required": [
+                                    "status"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Session",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/equipment/:uid/:unit/parent": {
+            "post": {
+                "summary": "Update Equipment Parent",
+                "description": "Define the parent equipment of an equipment.\n\n```js\napi.post(\"/equipment/imei:1234567890/0/parent\", { uid: \"mac:112233445566/0\" }, (err) => {\n\tif (err) throw err;\n\n\tconsole.log(\"imei:1234567890 is now child of mac:112233445566\");\n});\n```",
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "uid": {
+                                        "type": "string",
+                                        "description": "The unique identification of the parent equipment."
+                                    }
+                                },
+                                "required": [
+                                    "uid"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Session",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            },
+            "delete": {
+                "summary": "Remove Equipment Parent",
+                "description": "Remove parent association from an equipment.\n\n```js\napi.delete(\"/equipment/imei:1234567890/0/parent\", (err) => {\n\tif (err) throw err;\n\n\tconsole.log(\"imei:1234567890 has no longer a parent\");\n});\n```",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Session",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/equipment/:uid/:unit/properties": {
+            "post": {
+                "summary": "Update Equipment Properties",
+                "description": "Change equipment property values.\n\n```js\napi.post(\"/equipment/imei:1234567890/0/properties\", { wifi_ssid: \"Solar\", wifi_key: \"1234567890\" }, (err) => {\n\tif (err) throw err;\n\n\tconsole.log(\"properties changed\");\n});\n```\n\nThere are no parmeters for this method as they depend on the property references defined.",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Session",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/equipment/:uid/:unit/actuators/:actuator/set": {
+            "post": {
+                "summary": "Write Equipment Actuator",
+                "description": "Send an actuator request to equipment.\n\n```js\napi.post(\"/equipment/imei:1234567890/0/actuators/3932/set\", { value: 26 }, (err) => {\n\tif (err) throw err;\n\n\tconsole.log(\"Actuator set successfully\");\n});\n```\n\nNote that value is optional, it depends on actuator being user input or fixed",
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "value": {
+                                        "type": "string",
+                                        "description": "The new actuator value, if required."
+                                    }
+                                },
+                                "required": []
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Session",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/equipment/add": {
+            "post": {
+                "summary": "Add new Equipment",
+                "description": "Add a new equipment.\n\n```js\napi.post(\"/equipment/add\", { uid: \"mac:f008d15ee28c\", sn: \"033002601027\", type_id: 3 }, (err) => {\n\tif (err) throw err;\n\n\tconsole.log(\"equipment created\");\n});\n```",
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "uid": {
+                                        "type": "string",
+                                        "description": "Mac or imei from device"
+                                    },
+                                    "sn": {
+                                        "type": "string",
+                                        "description": "Serial number from equipment"
+                                    },
+                                    "type_id": {
+                                        "type": "string",
+                                        "description": "Type id to choose an existing type"
+                                    }
+                                },
+                                "required": [
+                                    "uid"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Session",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/equipment/:uid/:unit/validate": {
+            "post": {
+                "summary": "Validate Equipment",
+                "description": "Validate an equipment installation\n\n```js\napi.post(\"/equipment/imei:1234567890/0/validate\", (err) => {\n\tif (err) throw err;\n\n\tconsole.log(\"Equipment validated\");\n});\n```",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Session",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/equipment/types": {
+            "get": {
+                "summary": "List Equipment Types",
+                "description": "Get the list of equipment types.\n\n```js\napi.get(\"/equipment/types\", (err, types) => {\n\tif (err) throw err;\n\n\tconsole.log(types);\n});\n```",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/equipment/state-classes/last": {
+            "get": {
+                "summary": "Get last equipment state",
+                "description": "Get the last state of a specific equipment.\n```js\napi.get(\"/equipment/state-classes/last\", { ref : '2003', limit : 1, exclude_type: \"run\" }, (err, state) => {\n\tif (err) throw err;\n\n\tconsole.log(state);\n});\n```",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    },
+                    {
+                        "name": "ref",
+                        "in": "query",
+                        "type": "string",
+                        "required": true,
+                        "description": "Equipment ref"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "type": "string",
+                        "required": true,
+                        "description": "Rows limit"
+                    },
+                    {
+                        "name": "exclude_type",
+                        "in": "query",
+                        "type": "string",
+                        "required": true,
+                        "description": "Exclude state from list"
+                    }
+                ]
+            }
+        },
+        "/equipment/state-classes/classify": {
+            "post": {
+                "summary": "Add classification to equipment state",
+                "description": "Give the order to add classification to equipment state.\n```js\napi.post(\"/classify\", { state: 438, class: 12 }, (err) => {\n\tif (err) throw err;\n\n\tconsole.log(\"success\");\n});\n```",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Session",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/fleet": {
+            "get": {
+                "summary": "List Devices",
+                "description": "One of the most common information you can obtain is the list of devices. It will give you the names, current positions and some more useful information.\n\n```js\napi.get(\"/fleet/devices\", {\n\tlast_trip : true,\n\tmileage   : true,\n\tdevice    : 'SB-83-DB',\n}, (err, devices) => {\n\tif (err) throw err;\n\n\tconsole.log(devices);\n});\n```",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    },
+                    {
+                        "name": "last_trip",
+                        "in": "query",
+                        "type": "string",
+                        "required": false,
+                        "description": "Whether you want to get the last trip date"
+                    },
+                    {
+                        "name": "mileage",
+                        "in": "query",
+                        "type": "string",
+                        "required": false,
+                        "description": "Whether you want to get the last mileage"
+                    },
+                    {
+                        "name": "device",
+                        "in": "query",
+                        "type": "string",
+                        "required": false,
+                        "description": "Whether you want to get the specific device"
+                    }
+                ]
+            }
+        },
+        "/fleet/route": {
+            "get": {
+                "summary": "Get Route",
+                "description": "Get route information between two positions.\n\n```js\napi.get(\"/fleet/route\", {\n\tfrom : [ 40.1, -8.1 ],\n\tto   : [ 40.2, -8.2 ],\n}, (err, route) => {\n\tif (err) throw err;\n\n\tconsole.log(\"route\", route);\n});\n```",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    },
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "type": "string",
+                        "required": true,
+                        "description": "Source position from where to route"
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "type": "string",
+                        "required": true,
+                        "description": "Destination to where to route"
+                    }
+                ]
+            }
+        },
+        "/fleet/address": {
+            "get": {
+                "summary": "Get Address Information",
+                "description": "Get address information for a certain coordinate.\n\n```js\napi.get(\"/fleet/address\", {\n\tlat : 40.1,\n\tlon : -8.1\n}, (err, info) => {\n\tif (err) throw err;\n\n\tconsole.log(\"address\", info);\n});\n```",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    },
+                    {
+                        "name": "lat",
+                        "in": "query",
+                        "type": "string",
+                        "required": true,
+                        "description": "Latitude in decimal form"
+                    },
+                    {
+                        "name": "lon",
+                        "in": "query",
+                        "type": "string",
+                        "required": true,
+                        "description": "Longitude in decimal form"
+                    }
+                ]
+            }
+        },
+        "/fleet/incidents": {
+            "get": {
+                "summary": "List Incidents",
+                "description": "Get all open incidents from accessible devices.\n\n```js\napi.get(\"/fleet/incidents\", (err, incidents) => {\n\tif (err) throw err;\n\n\tconsole.log(\"incidents\", incidents);\n});\n```",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "type": "string",
+                        "required": false,
+                        "description": "Number of incidents to return, defaults to 50"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "type": "string",
+                        "required": false,
+                        "description": "Pagination number to return, starts and defaults to 1"
+                    }
+                ]
+            }
+        },
+        "/fleet/distances": {
+            "get": {
+                "summary": "List Distances",
+                "description": "Get total day distances of all devices from a period (defaults to week).\n\n```js\napi.get(\"/fleet/distances\", { period: \"week\" }, (err, distances) => {\n\tif (err) throw err;\n\n\tconsole.log(\"this week\", distances);\n});\n```\n\nYou can also get from previous week.\n\n```js\napi.get(\"/fleet/distances\", { period: \"lastweek\" }, (err, distances) => {\n\tif (err) throw err;\n\n\tconsole.log(\"previous week\", distances);\n});\n```\n\nOr a specific number of days.\n\n```js\napi.get(\"/fleet/distances\", { period: \"days\", days: 14 }, (err, distances) => {\n\tif (err) throw err;\n\n\tconsole.log(\"last 14 days\", distances);\n});\n```\n\nYou can also add a device to filter distances.\n\n```js\napi.get(\"/fleet/distances\", { period: \"week\", device: 5 }, (err, distances) => {\n\tif (err) throw err;\n\n\tconsole.log(\"last week of device 5\", distances);\n});\n```",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    },
+                    {
+                        "name": "period",
+                        "in": "query",
+                        "type": "string",
+                        "required": false,
+                        "description": "Define to what period the distances refer to. Can be 'lastweek', 'days' or 'week' (default)."
+                    },
+                    {
+                        "name": "days",
+                        "in": "query",
+                        "type": "string",
+                        "required": false,
+                        "description": "If period is set to 'days', this parameter is required to be a positive number of days."
+                    },
+                    {
+                        "name": "device",
+                        "in": "query",
+                        "type": "string",
+                        "required": false,
+                        "description": "If one just wants a specific device, indicate the ID and the response should be much faster."
+                    }
+                ]
+            }
+        },
+        "/fleet/:id/history": {
+            "get": {
+                "summary": "Get Device History",
+                "description": "Get trip history for a specific device.\n\n```js\napi.get(\"/fleet/3/history\", { date: \"2019-04-23\" }, (err, trips) => {\n\tif (err) throw err;\n\n\tconsole.log(\"history\", trips);\n});\n```",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    },
+                    {
+                        "name": "date",
+                        "in": "query",
+                        "type": "string",
+                        "required": false,
+                        "description": "The date for the history data (DD-MM-YYYY format)"
+                    }
+                ]
+            }
+        },
+        "/fleet/stats": {
+            "get": {
+                "summary": "Get Statistics",
+                "description": "Get statistics from all fleet.\n\n```js\napi.get(\"/fleet/stats\", (err, stats) => {\n\tif (err) throw err;\n\n\tconsole.log(\"stats\", stats);\n});\n```",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/fleet/:id/stats": {
+            "get": {
+                "summary": "Get Statistics",
+                "description": "Get statistics from all fleet.\n\n```js\napi.get(\"/fleet/stats\", (err, stats) => {\n\tif (err) throw err;\n\n\tconsole.log(\"stats\", stats);\n});\n```",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/fleet/trips/:ids/route": {
+            "get": {
+                "summary": "Get Trip Routes",
+                "description": "Get route information for one or more trips.\n\n```js\napi.get(\"/fleet/trips/43,44,45/route\", (err, info) => {\n\tif (err) throw err;\n\n\tconsole.log(\"routes\", info);\n});\n```",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/fleet/:id/fuelsupplies": {
+            "get": {
+                "summary": "Get Device Fuel Supplies History",
+                "description": "Get fuel supply history for a specific device.\n\n```js\napi.get(\"/fleet/3/fuelsupplies\", (err, fuelsupplies) => {\n\tif (err) throw err;\n\n\tconsole.log(fuelsupplies);\n});\n```",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            },
+            "post": {
+                "summary": "Add Fuel Supplies",
+                "description": "Add fuel supplies of a specific device.\n\nYou can pass an Array of fuel supplies or a single object with a single fuel supply.\n\n```js\napi.post(\"/fleet/1/fuelsupplies\", {\n\tdate     : \"2021-01-01 10:00:00\",\n\tquantity : 15,\n\tcost     : 2,\n\tdistance : 4,\n\tlocation :\"street_name\",\n\tsupplier :\"PT123456789\"\n}, (err) => {\n\tif (err) throw err;\n\n\tconsole.log(\"success!\");\n});\n```",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Session",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/missions": {
+            "get": {
+                "summary": "List Missions",
+                "description": "Returns tasks statistics per date, device and responsible.\n\n```js\napi.get(\"/missions\", (err, missions) => {\n\tif (err) throw err;\n\n\tconsole.log(\"Missions:\", missions);\n});\n```",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/missions/:mission/start": {
+            "post": {
+                "summary": "Start Mission",
+                "description": "Start the mission. If no error is returned, the mission has successfully been marked as started.\n\n```js\napi.post(\"/:id/start\", (err) => {\n\tif (err) throw err;\n\n\tconsole.log(\"success!\");\n});\n```",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Session",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/missions/:mission/pause": {
+            "post": {
+                "summary": "Pause Mission",
+                "description": "Pause the mission. If no error is returned, the mission has successfully been marked as paused.\n\n```js\napi.post(\"/:id/pause\", {\n\treason : \"some text\", // optional\n}, (err) => {\n\tif (err) throw err;\n\n\tconsole.log(\"success!\");\n});\n```",
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "reason": {
+                                        "type": "string",
+                                        "description": "Pause justification text."
+                                    }
+                                },
+                                "required": [
+                                    "reason"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Session",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/missions/:mission/resume": {
+            "post": {
+                "summary": "Resume Mission",
+                "description": "Resume the mission. If no error is returned, the mission pause was ended.\n\n```js\napi.post(\"/:id/resume\", (err) => {\n\tif (err) throw err;\n\n\tconsole.log(\"success!\");\n});\n```",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Session",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/missions/:mission/end": {
+            "post": {
+                "summary": "End Mission",
+                "description": "End the mission. If no error is returned, the mission has successfully been marked as ended.\n\n```js\napi.post(\"/:id/end\", (err) => {\n\tif (err) throw err;\n\n\tconsole.log(\"success!\");\n});\n```",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Session",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/missions/:mission/set/position": {
+            "post": {
+                "summary": "Update mission GPS position",
+                "description": "Update mission position coordinates. These coordinates can be used for finishing missions, depending on settings.\n\n```js\napi.post(\"/:id/set/position\", {\n\tlat : 40,\n\tlon : -8,\n }, (err) => {\n\tif (err) throw err;\n\n\tconsole.log(\"success!\");\n});\n```",
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "lat": {
+                                        "type": "string",
+                                        "description": "Entity position latitude in decimal form"
+                                    },
+                                    "lon": {
+                                        "type": "string",
+                                        "description": "Entity position longitude in decimal form"
+                                    }
+                                },
+                                "required": [
+                                    "lat",
+                                    "lon"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Session",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/missions/:mission/stock/available": {
+            "get": {
+                "summary": "Get mission available stock items",
+                "description": "Returns stock from device zone that is available to the mission.\n\n```js\napi.get(\"/missions/:mission/stock/available\", (err, items) => {\n\tif (err) throw err;\n\n\tconsole.log(\"Stocks:\", items);\n});\n```",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/missions/tasks": {
+            "get": {
+                "summary": "Get Mission Tasks",
+                "description": "One of the most common information you can obtain is the list of tasks. It will give you the names, current positions and some more useful information.\n\n```js\napi.get(\"/missions/tasks\", {\n\tposition : [ 40, -8 ],\n\tdate     : \"2020-04-23\",\n}, (err, data) => {\n\tif (err) throw err;\n\n\tconsole.log(\"Tasks:\", data.tasks);\n\tconsole.log(\"States:\", data.states);\n\tconsole.log(\"Information:\", data.info);\n});\n```",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    },
+                    {
+                        "name": "position",
+                        "in": "query",
+                        "type": "string",
+                        "required": false,
+                        "description": "Your current position. Missions tasks will get sorted to that position."
+                    },
+                    {
+                        "name": "date",
+                        "in": "query",
+                        "type": "string",
+                        "required": false,
+                        "description": "Tasks date. If not used, today will be used."
+                    }
+                ]
+            },
+            "put": {
+                "summary": "Create Tasks",
+                "description": "It is possible to create several tasks at once.\n\nYou can define the `id` to update an existing task or leave blank to create a new one.\nMany of the properties are optional like volume, weight, value or quantity.\n\n```js\napi.put(\"/missions/tasks\", {\n\t\"2020-08-10\" : {\n\t\t\"57-FT-26\" : [{\n\t\t\tid          : \"26184\",\n\t\t\ttitle       : \"Invoice No. 21834\",\n\t\t\tlocation    : \"1234.34\",\n\t\t\tresponsible : 8888,\n\t\t\tentity      : \"Company 1\",\n\t\t\tposition    : [-8.42947998, 39.9877],\n\t\t\tvolume      : 23,\n\t\t\tvalue       : 99.5,\n\t\t\tnotes       : \"Fragil\",\n\t\t\thmin        : 08,\n\t\t\thmax        : 18,\n\t\t\trating      : 803\n\t\t}]\n\t},\n\t\"2020-08-11\" : {\n\t\t\"6T-FT-21\" : [{\n\t\t\ttitle       : \"Invoice No. 40032\",\n\t\t\torder       : 1,\n\t\t\tlocation    : \"3000.hq\",\n\t\t\tresponsible : 8888,\n\t\t\tweight      : 100,\n\t\t\tquantity    : 3,\n\t\t\tvalue       : 260\n\t\t}, {\n\t\t\ttitle       : \"Invoice No. 40033\",\n\t\t\torder       : 2,\n\t\t\tlocation    : \"1234.av\",\n\t\t\tresponsible : 8888,\n\t\t\tvalue       : 56.5\n\t\t}]\n\t}\n}, (err) => {\n\tif (err) throw err;\n\n\tconsole.log(\"success!\");\n});\n```",
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string",
+                                        "description": "Task ID, if defined"
+                                    },
+                                    "order": {
+                                        "type": "string",
+                                        "description": "If order is defined, tasks will have that specific order and will not be sorted for a best route"
+                                    },
+                                    "title": {
+                                        "type": "string",
+                                        "description": "Title of task"
+                                    },
+                                    "location": {
+                                        "type": "string",
+                                        "description": "Entity GPS reference code"
+                                    },
+                                    "position": {
+                                        "type": "string",
+                                        "description": "Entity GPS position (**[ lon, lat ]** or **{ lon: lon, lat: lat }**). This will only be used <u>when entity/location reference separator is empty</u>."
+                                    },
+                                    "entity": {
+                                        "type": "string",
+                                        "description": "Entity name. In conjunction with position, when a reference is given but not found on system, this is used to create the new entity."
+                                    },
+                                    "responsible": {
+                                        "type": "string",
+                                        "description": "Responsible reference that will carry out the task"
+                                    },
+                                    "weight": {
+                                        "type": "string",
+                                        "description": "Total weight of task"
+                                    },
+                                    "volume": {
+                                        "type": "string",
+                                        "description": "Total volume of task"
+                                    },
+                                    "value": {
+                                        "type": "string",
+                                        "description": "Total value of task"
+                                    },
+                                    "quantity": {
+                                        "type": "string",
+                                        "description": "Quantity of objects in task"
+                                    },
+                                    "notes": {
+                                        "type": "string",
+                                        "description": "Task notes"
+                                    },
+                                    "ci": {
+                                        "type": "string",
+                                        "description": "Min hour to perform the task"
+                                    },
+                                    "cf": {
+                                        "type": "string",
+                                        "description": "Max hour to perform the task"
+                                    },
+                                    "rating": {
+                                        "type": "string",
+                                        "description": "Rating for payment method"
+                                    }
+                                },
+                                "required": [
+                                    "location"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Session",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/missions/tasks/:task/route": {
+            "get": {
+                "summary": "Get Task Route",
+                "description": "Get a route from an indicated `position` to a `task`.\n\n```js\napi.get(\"/missions/tasks/:id/route\", {\n\tlat : 40,\n\tlon : -8,\n}, (err, route) => {\n\tif (err) throw err;\n\n\tconsole.log(\"route\", route);\n});\n```",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    },
+                    {
+                        "name": "lat",
+                        "in": "query",
+                        "type": "string",
+                        "required": true,
+                        "description": "Latitude in decimal form"
+                    },
+                    {
+                        "name": "lon",
+                        "in": "query",
+                        "type": "string",
+                        "required": true,
+                        "description": "Longitude in decimal form"
+                    }
+                ]
+            }
+        },
+        "/missions/tasks/:task/payment": {
+            "put": {
+                "summary": "Add Task Payment",
+                "description": "This adds a payment of a specific value to a task. The task needs to have a value and the provided value must be equal or below the missing payment.\n\n```js\napi.put(\"/missions/tasks/:id/payment\", {\n\tpayment : 3, // check payments\n\tvalue   : 3.5,\n}, (err) => {\n\tif (err) throw err;\n\n\tconsole.log(\"payment added!\");\n});\n```",
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "payment": {
+                                        "type": "string",
+                                        "description": "The payment ID of this specific payment type."
+                                    },
+                                    "value": {
+                                        "type": "string",
+                                        "description": "The paid value."
+                                    }
+                                },
+                                "required": [
+                                    "payment",
+                                    "value"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Session",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            },
+            "delete": {
+                "summary": "Delete Task Payment",
+                "description": "This deletes a payment of a specific task.\n\n```js\napi.delete(\"/missions/tasks/:id/payment\", {\n\tpayment_id : 124, // check payments\n}, (err) => {\n\tif (err) throw err;\n\n\tconsole.log(\"payment deleted!\");\n});\n```",
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "payment_id": {
+                                        "type": "string",
+                                        "description": "The payment ID of this specific payment task."
+                                    }
+                                },
+                                "required": [
+                                    "payment_id"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Session",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/missions/tasks/:task/state": {
+            "post": {
+                "summary": "Set Task State",
+                "description": "To change a task to a specific state, you can pass the corresponding `task` and `state` from the previous method. If no error is returned, the task has successfully changed state.\n\n```js\napi.post(\"/missions/tasks/:id/state\", {\n\tstate : 8, // check states when you get missions\n}, (err) => {\n\tif (err) throw err;\n\n\tconsole.log(\"success!\");\n});\n```",
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "state": {
+                                        "type": "string",
+                                        "description": "The state ID to which you want to change the task."
+                                    }
+                                },
+                                "required": [
+                                    "state"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Session",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/missions/tasks/pending": {
+            "put": {
+                "summary": "Create Tasks Pending",
+                "description": "It is possible to create several tasks at once.\n\nYou can define the `id` to update an existing task or leave blank to create a new one.\nMany of the properties are optional like volume, weight, value or quantity.\n\n```js\napi.put(\"/missions/tasks/pending\", [{\n\tid          : \"26184\",\n\ttitle       : \"Invoice No. 21834\",\n\tlocation    : \"1234.34\",\n\tresponsible : 8888,\n\tentity      : \"Company 1\",\n\tposition    : [-8.42947998, 39.9877],\n\tvolume      : 23,\n\tvalue       : 99.5,\n\tnotes       : \"Fragil\",\n\thmin        : 08,\n\thmax        : 18,\n\trating      : 803,\n\ttype        : \"ART\",\n\tduration    : 60\n}], (err) => {\n\tif (err) throw err;\n\n\tconsole.log(\"success!\");\n});\n```",
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string",
+                                        "description": "Task ID, if defined"
+                                    },
+                                    "order": {
+                                        "type": "string",
+                                        "description": "If order is defined, tasks will have that specific order and will not be sorted for a best route"
+                                    },
+                                    "title": {
+                                        "type": "string",
+                                        "description": "Title of task"
+                                    },
+                                    "location": {
+                                        "type": "string",
+                                        "description": "Entity GPS reference code"
+                                    },
+                                    "position": {
+                                        "type": "string",
+                                        "description": "Entity GPS position (**[ lon, lat ]** or **{ lon: lon, lat: lat }**). This will only be used <u>when entity/location reference separator is empty</u>."
+                                    },
+                                    "entity": {
+                                        "type": "string",
+                                        "description": "Entity name. In conjunction with position, when a reference is given but not found on system, this is used to create the new entity."
+                                    },
+                                    "responsible": {
+                                        "type": "string",
+                                        "description": "Responsible reference that will carry out the task"
+                                    },
+                                    "weight": {
+                                        "type": "string",
+                                        "description": "Total weight of task"
+                                    },
+                                    "volume": {
+                                        "type": "string",
+                                        "description": "Total volume of task"
+                                    },
+                                    "value": {
+                                        "type": "string",
+                                        "description": "Total value of task"
+                                    },
+                                    "quantity": {
+                                        "type": "string",
+                                        "description": "Quantity of objects in task"
+                                    },
+                                    "notes": {
+                                        "type": "string",
+                                        "description": "Task notes"
+                                    },
+                                    "ci": {
+                                        "type": "string",
+                                        "description": "Min hour to perform the task"
+                                    },
+                                    "cf": {
+                                        "type": "string",
+                                        "description": "Max hour to perform the task"
+                                    },
+                                    "rating": {
+                                        "type": "string",
+                                        "description": "Rating for payment method"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "description": "Ref for type task"
+                                    },
+                                    "duration": {
+                                        "type": "string",
+                                        "description": "Task duration in minutes"
+                                    }
+                                },
+                                "required": [
+                                    "location"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Session",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/missions/tasks/:task/upload": {
+            "post": {
+                "summary": "Upload task file",
+                "description": "Upload a file that is associated with a task.\n\n```js\napi.upload(\"/tasks/:taskid/upload\", {\n\tfiles : file,\n }, (err) => {\n\tif (err) throw err;\n\n\tconsole.log(\"success!\");\n});\n```",
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "files": {
+                                        "type": "string",
+                                        "description": "Input file"
+                                    }
+                                },
+                                "required": [
+                                    "files"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Session",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/missions/tasks/:task/files": {
+            "get": {
+                "summary": "Get Task files list",
+                "description": "Returns task files list.\n\n```js\napi.get(\"/missions/tasks/3123/files\", (err, files) => {\n\tif (err) throw err;\n\n\tconsole.log(\"Files:\", files);\n});\n```",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/missions/tasks/:task/files/:fileid/preview": {
+            "get": {
+                "summary": "Get Task Photo",
+                "description": "Get the task photo.\n\nYou should ensure the equipment has a `photo` parameter and is `true`, otherwise this will return a 404 error.\n\n```html\n<img src=\"/api/missions/tasks/3/files/2348/preview?key=your_session_key\" />\n```\n\nYou can get your session key using `api.session()`.",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/missions/tasks/:task/files/:fileid": {
+            "delete": {
+                "summary": "Delete Task file",
+                "description": "This deletes a file of a specific task.\n\n```js\napi.delete(\"/missions/tasks/3/files/124\", (err) => {\n\tif (err) throw err;\n\n\tconsole.log(\"file deleted!\");\n});\n```",
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "file_id": {
+                                        "type": "string",
+                                        "description": "The file ID of this specific task."
+                                    }
+                                },
+                                "required": [
+                                    "file_id"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Session",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/missions/tasks/:task/sign": {
+            "post": {
+                "summary": "Upload signature",
+                "description": "Upload signature that is associated with a task.\n\n```js\napi.upload(\"/tasks/3/sign\", {\n\tsignature : signature,\n }, (err) => {\n\tif (err) throw err;\n\n\tconsole.log(\"success!\");\n});\n```",
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "signature": {
+                                        "type": "string",
+                                        "description": "Input signature file"
+                                    }
+                                },
+                                "required": [
+                                    "signature"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Session",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            },
+            "delete": {
+                "summary": "Delete Task Signature",
+                "description": "This deletes a signature for specific task.\n\n```js\napi.delete(\"/missions/tasks/3/sign\",(err) => {\n\tif (err) throw err;\n\n\tconsole.log(\"Signature deleted!\");\n});\n```",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Session",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/missions/tasks/:task/notes": {
+            "post": {
+                "summary": "Add notes to task mission",
+                "description": "Add responsible notes to task mission.\n\n```js\napi.post(\"/tasks/:task/notes\", {\n\tnotes : \"some text\",\n}, (err) => {\n\tif (err) throw err;\n\n\tconsole.log(\"success!\");\n});\n```",
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "notes": {
+                                        "type": "string",
+                                        "description": "Text with notes"
+                                    }
+                                },
+                                "required": [
+                                    "notes"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Session",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/missions/tasks/:task/stock/items": {
+            "get": {
+                "summary": "Get Task stock items list",
+                "description": "Returns stock items associated directly to task.\n\n```js\napi.get(\"/missions/tasks/3123/stock/items\", (err, items) => {\n\tif (err) throw err;\n\n\tconsole.log(\"Items:\", items);\n});\n```",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/missions/tasks/:task/stock/items/add": {
+            "post": {
+                "summary": "Add or Update stock item in task",
+                "description": "Add or Update stock item in task.\n\n```js\napi.post(\"/missions/tasks/3123/stock/items/add\", (err) => {\n\tif (err) throw err;\n\n\tconsole.log(\"success!\");\n});\n```",
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "item": {
+                                        "type": "string",
+                                        "description": "Item ID, from stock_item"
+                                    },
+                                    "quantity": {
+                                        "type": "string",
+                                        "description": "Quantity prepared of specific item"
+                                    },
+                                    "lot": {
+                                        "type": "string",
+                                        "description": "Lot from specific item"
+                                    },
+                                    "task_stock_item": {
+                                        "type": "string",
+                                        "description": "ID from stock item task. Just need to do update"
+                                    }
+                                },
+                                "required": [
+                                    "item",
+                                    "quantity",
+                                    "lot"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Session",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/missions/tasks/:task/stock/items/:uid": {
+            "delete": {
+                "summary": "Delete stock item task",
+                "description": "This deletes a stock item of a specific task.\n\n```js\napi.delete(\"/missions/tasks/3123/stock/items/3\", (err) => {\n\tif (err) throw err;\n\n\tconsole.log(\"item deleted!\");\n});\n```",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Session",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/missions/tasks/:task/stock/items/confirm": {
+            "post": {
+                "summary": "Confirm items of tasks",
+                "description": "Confirm quantities of items a specific task.\n\n```js\napi.post(\"/missions/tasks/3123/stock/items/confirm\", (err) => {\n\tif (err) throw err;\n\n\tconsole.log(\"success!\");\n});\n```",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Session",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/missions/tasks/:task/sms/send": {
+            "post": {
+                "summary": "Send notification SMS",
+                "description": "Send notification SMS for a specific task number.\n\n```js\napi.post(\"/missions/tasks/3123/sms/send\", (err) => {\n\tif (err) throw err;\n\n\tconsole.log(\"success!\");\n});\n```",
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "position": {
+                                        "type": "string",
+                                        "description": "Your current position. The system will calculate time for trip"
+                                    }
+                                },
+                                "required": [
+                                    "position"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Session",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/missions/payments": {
+            "get": {
+                "summary": "List Payments",
+                "description": "Returns possible mission task payments and associated restrictions.\n\n```js\napi.get(\"/missions/payments\", (err, payments) => {\n\tif (err) throw err;\n\n\tconsole.log(\"Payments:\", payments);\n});\n```",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        "/settings/events/agents": {
+            "get": {
+                "summary": "List Agents and current status",
+                "description": "Get a list of configured agents and respective statistic information and status.\n\n```js\napi.get(\"/settings/events/agents\", (err, agents) => {\n\tif (err) throw err;\n\n\tconsole.log(agents);\n});\n```",
+                "parameters": [
+                    {
+                        "name": "X-Session",
+                        "in": "header",
+                        "type": "string",
+                        "required": true
+                    }
+                ]
+            }
+        }
+    }
+}

@@ -19,12 +19,13 @@ void setup() {
 
   Serial.begin(115200);
 
-  StaticJsonDocument<64> doc_object;
+  StaticJsonDocument<120> doc_object;
 
   doc_object["ref"] = "sensor1";
   doc_object["min_value"] = 2;
   doc_object["max_value"] = 12;
   doc_object["diff"] = 0;
+  doc_object["period"] = 15;
 
   JsonObject obj = doc_object.as<JsonObject>();
 
@@ -33,7 +34,7 @@ void setup() {
     serializeJson(obj, Serial);
   }
 
-  if(!Alarm.add("sensor2",12,20,0)){
+  if(!Alarm.add("sensor2",30,12,20,0)){
     Serial.println("!! Error adding sensor2 alarm");
   }
 
@@ -43,20 +44,28 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
 
-  uint8_t rand = (uint8_t)random(0,20);
-  //uint8_t rand = 20;
-  Serial.printf("value: %d \n",rand);
-  table[ref] = rand;
-  table["sensor2"] = rand;
-  JsonObject data = table.as<JsonObject>();
+  if(Alarm.timedOut(ref)){
+    uint8_t rand = (uint8_t)random(0,20);
+    //uint8_t rand = 20;
+    Serial.printf("value: %d \n",rand);
+    table[ref] = rand;
+    table["sensor2"] = rand;
+    JsonObject data = table.as<JsonObject>();
 
-  callback = &calledInAlarm;
+    if(Alarm.check(ref,int32be_type,data,calledInAlarm))
+      Serial.println(ref+" is in alarm\n");
+  }
 
-  if(Alarm.check(ref,int32be_type,data,callback))
-    Serial.println(ref+" is in alarm\n");
+  if(Alarm.timedOut("sensor2")){
 
-  if(Alarm.check("sensor2",int32be_type,data,callback))
-    Serial.println("!! sensor2 is in alarm\n");
+    uint8_t rand = (uint8_t)random(0,20);
+    //uint8_t rand = 20;
+    Serial.printf("value: %d \n",rand);
+    table["sensor2"] = rand;
+    JsonObject data = table.as<JsonObject>();
 
-  delay(3000);
+    if(Alarm.check("sensor2",int32be_type,data,calledInAlarm))
+      Serial.println("!! sensor2 is in alarm\n");
+  }
+
 }

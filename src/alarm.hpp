@@ -6,7 +6,7 @@
 #ifndef UNITTEST
 
   #include "ArduinoJson.h"
-  //#include "../log/logging.h" // handle it
+  #include <TimeLib.h>
 
   #define ERROR_ALARM
   //#define DEBUG_ALARM
@@ -77,6 +77,7 @@
 
 class ALARM{
   public:
+
     ALARM(){};
     #ifndef UNITTEST
     HardwareSerial* serial = &Serial;
@@ -84,15 +85,23 @@ class ALARM{
       serial = serial_port;
     };
     #endif
-    bool add(JsonObject obj);
-    bool add(String ref, long min, long max, int diff = 0);
+    bool timedOut(String ref);
     bool check(String ref, uint8_t type, JsonObject value);
     bool check(String ref, uint8_t type, JsonObject value, bool(*report)(String));
+    bool add(JsonObject obj);
+    bool add(String ref, uint32_t period, long min, long max, int diff = 0);
     void list();
     JsonObject get(String ref);
+    void set_time_offset(int16_t offset){
+      time_offset = offset;
+    };
     #ifdef UNITTEST
     uint32_t check_counter();
     #endif
+  private:
+    int16_t time_offset = 0;
+    bool use_local_time = false;
+    uint32_t get_aligned_hour(uint32_t period);
 };
 
 #endif
