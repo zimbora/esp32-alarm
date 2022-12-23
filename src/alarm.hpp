@@ -95,6 +95,7 @@ class ALARM{
     void set_time_offset(int16_t offset){
       time_offset = offset;
     };
+
     #ifdef UNITTEST
     uint32_t check_counter();
     #endif
@@ -102,6 +103,7 @@ class ALARM{
     int16_t time_offset = 0;
     bool use_local_time = false;
     uint32_t get_aligned_hour(uint32_t period);
+
 };
 
 #endif
